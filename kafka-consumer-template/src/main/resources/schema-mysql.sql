@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS sample
+(
+    id INT NOT NULL AUTO_INCREMENT,
+    username VARCHAR(255),
+    age INT,
+    address VARCHAR(255),
+    EMAIL VARCHAR(255),
+    PRIMARY KEY (id)
+) ENGINE = InnoDB AUTO_INCREMENT=1;
