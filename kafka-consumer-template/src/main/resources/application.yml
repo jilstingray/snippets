@@ -15,6 +15,10 @@ spring:
       platform: mysql
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 1000
 
 kafka:
   bootstrap-servers: 127.0.0.1:9092
