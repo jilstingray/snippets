@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS sample
 (
-    id INT NOT NULL AUTO_INCREMENT,
+    id BIGINT NOT NULL AUTO_INCREMENT,
     username VARCHAR(255),
     age INT,
     address VARCHAR(255),

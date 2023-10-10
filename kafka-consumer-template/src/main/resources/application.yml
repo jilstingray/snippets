@@ -7,18 +7,20 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
-    password: password
-    url: jdbc:mysql://localhost:3306/kafka?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true
+    password: Docker@131
+    url: jdbc:mysql://localhost:3306/kafka?useUnicode=yes&characterEncoding=UTF-8&useSSL=false&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
   sql:
     init:
       mode: always
       platform: mysql
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
+    mapping-resources: Message.hbm.xml
     properties:
       hibernate:
         jdbc:
           batch_size: 1000
+        order_inserts: true
 
 kafka:
   bootstrap-servers: 127.0.0.1:9092
@@ -26,4 +28,3 @@ kafka:
   topic: your-topic
   consumer-id: MultiThreadConsumer
   max-poll-records: 5000
-

@@ -11,7 +11,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Slf4j
-public class ConsumerWorker {
+public class ConsumerWorker
+{
     private final List<ConsumerRecord<String, byte[]>> consumerRecords;
     private final ReentrantLock lock = new ReentrantLock();
     private final long INVALID_COMMITTED_OFFSET = -1L;
@@ -20,44 +21,35 @@ public class ConsumerWorker {
     private volatile boolean started = false;
     private volatile boolean stopped = false;
 
-    public ConsumerWorker(List<ConsumerRecord<String, byte[]>> consumerRecords) {
+    public ConsumerWorker(List<ConsumerRecord<String, byte[]>> consumerRecords)
+    {
         this.consumerRecords = consumerRecords;
     }
 
-    public boolean run() {
+    public boolean run()
+    {
         lock.lock();
         if (stopped) {
             return false;
         }
         started = true;
         lock.unlock();
-        for (ConsumerRecord<String, byte[]> record : consumerRecords) {
-            if (stopped) {
-                break;
-            }
-            handleRecord(record);
-            if (latestOffset.get() < record.offset() + 1) {
-                latestOffset.set(record.offset() + 1);
-            }
+        ConsumerService service = ContextAware.getBean(ConsumerService.class);
+        service.consume(consumerRecords);
+        long offset = consumerRecords.get(consumerRecords.size() - 1).offset();
+        if (latestOffset.get() < offset + 1) {
+            latestOffset.set(offset + 1);
         }
         return future.complete(latestOffset.get());
     }
 
-    public long getLatestOffset() {
+    public long getLatestOffset()
+    {
         return latestOffset.get();
     }
 
-    private void handleRecord(ConsumerRecord<String, byte[]> record) {
-        // do something...
-        ConsumerService service = ContextAware.getBean(ConsumerService.class);
-        try {
-            service.consume(record);
-        } catch (Exception e) {
-            log.warn(e.getMessage());
-        }
-    }
-
-    public void close() {
+    public void close()
+    {
         lock.lock();
         this.stopped = true;
         if (!started) {
@@ -66,14 +58,17 @@ public class ConsumerWorker {
         lock.unlock();
     }
 
-    public boolean isDone() {
+    public boolean isDone()
+    {
         return future.isDone();
     }
 
-    public long waitForCompletion(long timeout, TimeUnit timeUnit) {
+    public long waitForCompletion(long timeout, TimeUnit timeUnit)
+    {
         try {
             return future.get(timeout, timeUnit);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }

@@ -8,19 +8,23 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class ContextAware implements ApplicationContextAware {
+public class ContextAware
+        implements ApplicationContextAware
+{
     @Getter
     private static ApplicationContext applicationContext = null;
 
     @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
+    public void setApplicationContext(ApplicationContext applicationContext)
+    {
         if (ContextAware.applicationContext == null) {
             ContextAware.applicationContext = applicationContext;
         }
         log.info("KafkaContextAware.applicationContext == " + ContextAware.applicationContext);
     }
 
-    public static <T> T getBean(Class<T> c) {
+    public static <T> T getBean(Class<T> c)
+    {
         return getApplicationContext().getBean(c);
     }
 }

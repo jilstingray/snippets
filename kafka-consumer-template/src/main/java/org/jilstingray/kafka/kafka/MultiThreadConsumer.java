@@ -13,7 +13,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 @Slf4j
-public class MultiThreadConsumer {
+public class MultiThreadConsumer
+{
     private final static Executor executor = Executors.newFixedThreadPool(
             Runtime.getRuntime().availableProcessors() * 10, r -> {
                 Thread t = new Thread(r);
@@ -24,12 +25,13 @@ public class MultiThreadConsumer {
     private final Map<TopicPartition, OffsetAndMetadata> offsetsToCommit = new HashMap<>();
     private final OffsetCommitCallback commitCallback = (offsets, exception) -> {
         if (exception != null) {
-            log.error("Failed to commit offsets {}... Exception: {}" , offsets , exception.getMessage());
+            log.error("Failed to commit offsets {}... Exception: {}", offsets, exception.getMessage());
         }
     };
     private final Consumer<String, byte[]> consumer;
 
-    public MultiThreadConsumer(String servers, String topic, String groupId, String consumerId, String maxPollRecords) {
+    public MultiThreadConsumer(String servers, String topic, String groupId, String consumerId, String maxPollRecords)
+    {
         Properties props = new Properties();
         props.setProperty(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, servers);
         props.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
@@ -45,14 +47,16 @@ public class MultiThreadConsumer {
         consumer.subscribe(Collections.singletonList(topic), new MultiThreadRebalancedListener(consumer, outstandingWorkers, offsetsToCommit));
     }
 
-    public void run() {
+    public void run()
+    {
         distributeRecords(consumer.poll(Duration.ofMillis(100)));
         resumePartitions();
         commitAsync();
     }
 
     // send messages from different partitions to different threads
-    private void distributeRecords(ConsumerRecords<String, byte[]> records) {
+    private void distributeRecords(ConsumerRecords<String, byte[]> records)
+    {
         records.partitions().forEach(tp -> {
             // 按分区获取消息
             log.info("Part {}: receiving {} messages", tp, records.count());
@@ -65,7 +69,8 @@ public class MultiThreadConsumer {
     }
 
     // resume partitions that have been processed
-    private void resumePartitions() {
+    private void resumePartitions()
+    {
         Set<TopicPartition> partitions = new HashSet<>();
         outstandingWorkers.forEach((tp, worker) -> {
             if (worker.isDone()) {
@@ -79,7 +84,8 @@ public class MultiThreadConsumer {
     }
 
     // async
-    private void commitAsync() {
+    private void commitAsync()
+    {
         if (!offsetsToCommit.isEmpty()) {
             log.info("Async commit offset: {}", offsetsToCommit);
             consumer.commitAsync(offsetsToCommit, commitCallback);
@@ -88,7 +94,8 @@ public class MultiThreadConsumer {
     }
 
     // sync
-    private void commitSync() {
+    private void commitSync()
+    {
         if (!offsetsToCommit.isEmpty()) {
             log.info("Sync commit offset: {}", offsetsToCommit);
             consumer.commitSync(offsetsToCommit);
@@ -96,7 +103,8 @@ public class MultiThreadConsumer {
         }
     }
 
-    public void close() {
+    public void close()
+    {
         commitSync();
         consumer.close();
         log.warn("Closing consumer...");

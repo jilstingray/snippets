@@ -9,12 +9,15 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class CommandLineRunnerImpl implements CommandLineRunner {
+public class CommandLineRunnerImpl
+        implements CommandLineRunner
+{
     @Autowired
     private KafkaConfig kafkaConfig;
 
     @Override
-    public void run(String... args) {
+    public void run(String... args)
+    {
         log.info("Starting consumer...");
         MultiThreadConsumer consumer = new MultiThreadConsumer(
                 kafkaConfig.getBootstrapServers(),
@@ -26,7 +29,8 @@ public class CommandLineRunnerImpl implements CommandLineRunner {
             while (true) {
                 consumer.run();
             }
-        } finally {
+        }
+        finally {
             consumer.close();
         }
     }

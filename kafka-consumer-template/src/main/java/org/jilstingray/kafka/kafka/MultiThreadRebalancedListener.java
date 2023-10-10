@@ -12,21 +12,25 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class MultiThreadRebalancedListener implements ConsumerRebalanceListener {
+public class MultiThreadRebalancedListener
+        implements ConsumerRebalanceListener
+{
     private final Consumer<String, byte[]> consumer;
     private final Map<TopicPartition, ConsumerWorker> outstandingWorkers;
     private final Map<TopicPartition, OffsetAndMetadata> offsets;
 
     public MultiThreadRebalancedListener(Consumer<String, byte[]> consumer,
-                                         Map<TopicPartition, ConsumerWorker> outstandingWorkers,
-                                         Map<TopicPartition, OffsetAndMetadata> offsets) {
+            Map<TopicPartition, ConsumerWorker> outstandingWorkers,
+            Map<TopicPartition, OffsetAndMetadata> offsets)
+    {
         this.consumer = consumer;
         this.outstandingWorkers = outstandingWorkers;
         this.offsets = offsets;
     }
 
     @Override
-    public void onPartitionsRevoked(Collection<TopicPartition> partitions) {
+    public void onPartitionsRevoked(Collection<TopicPartition> partitions)
+    {
         Map<TopicPartition, ConsumerWorker> stoppedWorkers = new HashMap<>();
         for (TopicPartition partition : partitions) {
             ConsumerWorker worker = outstandingWorkers.remove(partition);
@@ -53,13 +57,15 @@ public class MultiThreadRebalancedListener implements ConsumerRebalanceListener 
 
         try {
             consumer.commitSync(revokedOffsets);
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             log.error(e.getMessage());
         }
     }
 
     @Override
-    public void onPartitionsAssigned(Collection<TopicPartition> partitions) {
+    public void onPartitionsAssigned(Collection<TopicPartition> partitions)
+    {
         consumer.resume(partitions);
     }
 }
